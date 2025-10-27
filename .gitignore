@@ -1,0 +1,13 @@
+# Node dependencies
+node_modules/
+
+# Playwright generated
+playwright-report/
+test-results/
+storage/
+.storage/
+dist/
+
+# Environment files (never commit secrets)
+.env
+.env.*

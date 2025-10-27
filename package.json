@@ -1,0 +1,26 @@
+{
+  "name": "brighthr_edward",
+  "version": "1.0.0",
+  "private": true,
+   "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "codegen": "playwright codegen",
+    "format": "npx prettier . --write",
+    "report": "playwright show-report",
+    "e2e": "playwright test --project=chromium",
+    "update-snapshots": "playwright test -u",
+    "debug": "PWDEBUG=1 playwright test",
+    "build": "tsc -p .",
+    "pretest": "tsc -p ."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "dotenv": "^17.2.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  }
+}
