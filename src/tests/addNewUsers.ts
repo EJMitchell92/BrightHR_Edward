@@ -48,9 +48,45 @@ test.describe("authenticated area", () => {
       "jobTitle",
       employee1.jobTitle
     );
-
+    await employee.addEmployeeActions.pickDate({
+      year: 2025,
+      month: "Oct",
+      day: 22,
+    });
     await employee.addEmployeeActions.clickFormAction("save");
     await employee.successEmployeeAssertions.successModalVisible();
     await employee.successEmployeeActions.clickSuccessModalAction("addAnother");
+
+    // Add second Employee
+    await employee.addEmployeeEmployeeAssertions.addModalVisible();
+    await employee.addEmployeeActions.enterEmployeeDetail(
+      "firstName",
+      employee2.firstName
+    );
+    await employee.addEmployeeActions.enterEmployeeDetail(
+      "lastName",
+      employee2.lastName
+    );
+    await employee.addEmployeeActions.enterEmployeeDetail(
+      "email",
+      employee2.email
+    );
+    await employee.addEmployeeActions.enterEmployeeDetail(
+      "phoneNumber",
+      employee2.phoneNumber
+    );
+    await employee.addEmployeeActions.enterEmployeeDetail(
+      "jobTitle",
+      employee2.jobTitle
+    );
+    await employee.addEmployeeActions.pickDate({
+      year: 2025,
+      month: "Oct",
+      day: 22,
+    });
+    await employee.addEmployeeActions.clickFormAction("save");
+    await employee.successEmployeeAssertions.successModalVisible();
+    await employee.successEmployeeActions.clickSuccessModalAction("close");
+    await sidebar.actions.clickMenuItem("employees");
   });
 });

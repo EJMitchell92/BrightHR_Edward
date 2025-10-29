@@ -78,10 +78,7 @@ export class EmployeePage {
         .locator("#main-content")
         .getByRole("button", { name: /add employee/i })
         .click();
-      await expect(this.page.locator('form[action="#"]')).toBeVisible();
-      await expect(
-        this.page.getByRole("heading", { name: /^add new employee$/i })
-      ).toBeVisible();
+      await this.addEmployeeEmployeeAssertions.addModalVisible();
     },
   };
 
@@ -138,6 +135,19 @@ export class EmployeePage {
       await btn.click();
 
       return this.actions;
+    },
+  };
+
+  public readonly addEmployeeEmployeeAssertions = {
+    addModalVisible: async () => {
+      const modal = this.page.getByRole("dialog");
+
+      await expect(modal, "Success modal should be visible").toBeVisible();
+
+      await expect(
+        modal.getByRole("heading", { name: /^success! new employee added$/i }),
+        "Success heading must be visible"
+      ).toBeVisible();
     },
   };
 
