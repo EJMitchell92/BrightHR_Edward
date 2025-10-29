@@ -1,55 +1,70 @@
-import type { Page, Locator } from '@playwright/test';
-import { expect } from '@playwright/test';
+import type { Page, Locator } from "@playwright/test";
+import { expect } from "@playwright/test";
 
-type LoginField = 'username' | 'password';
+type MenuItem =
+  | "dashboard"
+  | "rotas"
+  | "employees"
+  | "resources"
+  | "reports"
+  | "upgrade"
+  | "productsButton";
 
-interface LoginActions {
-  visitURL(): Promise<LoginActions>;
-  isPageVisible(): Promise<LoginActions>;
-  enterLoginDetail(field: LoginField, value: string): Promise<LoginActions>;
-  clickLoginButton(): Promise<LoginActions>;
-}
-
-export class LoginPage {
+export class SidebarUtility {
   constructor(private page: Page) {}
 
-  private readonly loginSelectors: Record<LoginField, string> = {
-    username: '#username',
-    password: '#password',
+  private readonly menuConfig: Record<
+    MenuItem,
+    { selector: string; route?: string }
+  > = {
+    dashboard: { selector: '[data-e2e="dashboard"]', route: "/dashboard" },
+    rotas: { selector: '[data-e2e="rotas"]', route: "/rota-planner" },
+    employees: { selector: '[data-e2e="employees"]', route: "/employee-hub" },
+    resources: { selector: '[data-e2e="resources"]', route: "/resources" },
+    reports: { selector: '[data-e2e="reports"]', route: "/reports" },
+    upgrade: { selector: '[data-e2e="upgrade"]', route: "/upgrade" },
+    productsButton: { selector: '[data-testid="productsButton"]' },
   };
 
-  public readonly actions: LoginActions = {
-    visitURL: async () => {
-      await this.page.goto('/login');
-      await this.actions.isPageVisible();
-      return this.actions;
-    },
+  public readonly actions = {
+    clickMenuItem: async (item: MenuItem) => {
+      const { selector, route } = this.menuConfig[item];
+      const link = this.page.locator(selector);
 
-    isPageVisible: async () => {
-      await expect(this.page).toHaveURL(/\/login/i);
+      await expect(link, `Nav item ${item} should be visible`).toBeVisible();
 
-      const username = this.page.locator(this.loginSelectors.username);
-      const password = this.page.locator(this.loginSelectors.password);
-
-      await expect(username, 'Username should be visible').toBeVisible();
-      await expect(password, 'Password should be visible').toBeVisible();
-
-      return this.actions;
-    },
-
-    enterLoginDetail: async (field, value) => {
-      const selector = this.loginSelectors[field];
-      const input = this.page.locator(selector);
-
-      await input.click();
-      await input.fill(''); 
-      await input.pressSequentially(value, { delay: 20 });
+      if (item === "productsButton") {
+        await link.click();
+        await expect(
+          this.page.getByLabel("Close side draw"),
+          "Products drawer should appear after clicking productsButton"
+        ).toBeVisible();
+      } else if (route) {
+        await Promise.all([
+          this.page.waitForURL(`**${route}**`, { timeout: 10_000 }),
+          link.click(),
+        ]);
+      } else {
+        await link.click();
+      }
 
       return this.actions;
     },
 
-    clickLoginButton: async () => {
-      await this.page.getByTestId('login-button').click();
+    closeSideDraw: async () => {
+      const closeButton = this.page.getByLabel("Close side draw");
+      await expect(
+        closeButton,
+        "Close drawer button must be visible"
+      ).toBeVisible();
+      await closeButton.click();
+      return this.actions;
+    },
+  };
+
+  public readonly assertions = {
+    isSidebarVisible: async () => {
+      await expect(this.page.getByTestId("sidebar")).toBeVisible();
       return this.actions;
     },
   };
