@@ -1,30 +1,38 @@
-# BrightHR_Edward
-Edward BrightHR Automation technical task
-Project purpose
+# Project name: BrightHR_Edward
 
-Tech: Playwright + TypeScript
+- Project automation coding challenge - https://github.com/brighthr/QA-Automation?tab=readme-ov-file
+- My submission is written in playwright.
+- Tests are located under Playwright > src > tests
 
-Setup with .env.example
+## Tech:
 
-How to run tests
+Playwright + TypeScript
 
-How CI is configured
+## Getting Started
 
-Folder structure overview
+## 1. Clone the repository
 
+Usng bash
+`git clone https://github.com/EJMitchell92/BrightHR_Edward.git`
 
-# Playwright E2E – Employees
+## 2. Setup
 
-## Setup
-1. `npm ci`
-2. Copy `.env.example` to `.env` and fill:
+1. Install packages locally: `npm install`
+2. Create .env file in root. Add
    - `BASE_URL=https://...`
    - `ADMIN_EMAIL=...`
    - `ADMIN_PASSWORD=...`
 
-## Run
-- `npm test`
+## 3. Run tests
+
+1. headless - `npm ci`
+2. playwright UI headed mode: `npx playwright test --ui`
+
+## 4. View reports
+
 - `npm run report` to open the HTML report
+- `npx playwright show-report`
 
 ## CI
-GitHub Actions workflow at `.github/workflows/ci.yml` runs tests on push and PR.
+
+GitHub Actions workflow at `.github/workflows/playwright.yml` runs tests on push and PR.

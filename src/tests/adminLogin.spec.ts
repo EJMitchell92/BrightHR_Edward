@@ -3,8 +3,10 @@ import { LoginPage } from "../pageObjects/login.page.js";
 import { DashboardPage } from "../pageObjects/dashboard.page.js";
 import { ENV } from "../fixtures/enviromentVariables.js";
 
-test.describe("successful login", async () => {
-  test("successful login", async ({ page }) => {
+test.describe("admin login", async () => {
+  test("successful login of an admin user to sandbox enviroment", async ({
+    page,
+  }) => {
     const login = new LoginPage(page);
     const dashboard = new DashboardPage(page);
 

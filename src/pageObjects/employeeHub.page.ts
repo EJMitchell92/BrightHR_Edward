@@ -99,7 +99,7 @@ export class EmployeeHubPage {
         `Expected ${expectedCount}, but found ${actualCount}`
       ).toBe(expectedCount);
 
-      // Added the ability to store in ENV for use in later validations
+      // Added the ability to store in ENV for use in later validations if needed
       process.env.EMPLOYEE_COUNT = String(actualCount);
 
       return actualCount;
@@ -130,6 +130,24 @@ export class EmployeeHubPage {
     },
   };
 
+  public readonly assertions = {
+    isPageVisible: async () => {
+      try {
+        await this.page.waitForURL(/\/employee-hub/i, { timeout: 30_000 });
+      } catch {
+        throw new Error(
+          "Test failed: Employee page did not load within 30 seconds"
+        );
+      }
+      const sidebar = this.page.getByTestId("sideBar");
+      await expect(
+        sidebar,
+        "Sidebar must be visible shortly after login"
+      ).toBeVisible();
+      return this.actions;
+    },
+  };
+
   public readonly addEmployeeActions = {
     enterEmployeeDetail: async (field: EmployeeField, value: string) => {
       const selector = this.employeeFieldSelectors[field];
@@ -155,6 +173,7 @@ export class EmployeeHubPage {
       return this.actions;
     },
 
+    // This is very simple data picker, further refactoring would have month and year pickers.
     pickDayByNumber: async (dayNumber: number) => {
       const dayLocator = this.page.locator(
         ".DayPicker-Day:not(.DayPicker-Day--outside) .DayPicker-Day-Number",
@@ -240,24 +259,6 @@ export class EmployeeHubPage {
         modal.getByRole("heading", { name: /^success! new employee added$/i }),
         "Success heading must be visible"
       ).toBeVisible();
-    },
-  };
-
-  public readonly assertions = {
-    isPageVisible: async () => {
-      try {
-        await this.page.waitForURL(/\/employee-hub/i, { timeout: 30_000 });
-      } catch {
-        throw new Error(
-          "Test failed: Employee page did not load within 30 seconds"
-        );
-      }
-      const sidebar = this.page.getByTestId("sideBar");
-      await expect(
-        sidebar,
-        "Sidebar must be visible shortly after login"
-      ).toBeVisible();
-      return this.actions;
     },
   };
 }
