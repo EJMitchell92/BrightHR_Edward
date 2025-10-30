@@ -38,9 +38,12 @@ export class LoginPage {
 
   public readonly assertions = {
     isPageVisible: async () => {
-      const currentURL = this.page.url();
-      if (!/\/login/i.test(currentURL)) {
-        throw new Error(`Test failed: Login page did not load in time`);
+      try {
+        await this.page.waitForURL(/\/login/i, { timeout: 30_000 });
+      } catch {
+        throw new Error(
+          "Test failed: Login page did not load within 30 seconds"
+        );
       }
       const username = this.page.locator(this.loginSelectors.username);
       const password = this.page.locator(this.loginSelectors.password);

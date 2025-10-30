@@ -13,17 +13,24 @@ export class DashboardPage {
 
   public readonly assertions = {
     isPageVisible: async () => {
-      const currentURL = this.page.url();
-      if (!/\/dashboard/i.test(currentURL)) {
-        throw new Error(`Test failed: Dashboard page did not load in time`);
+      try {
+        await this.page.waitForURL(/\/dashboard/i, { timeout: 30_000 });
+      } catch {
+        throw new Error(
+          "Test failed: Dashboard page did not load within 30 seconds"
+        );
       }
+
       await expect(this.page.getByTestId("brightLogo")).toBeVisible();
+
       const sidebar = this.page.getByTestId("sideBar");
       await expect(
         sidebar,
         "Sidebar must be visible shortly after login"
       ).toBeVisible();
+
       await expect(this.page.getByTestId("Dashboard")).toBeVisible();
+
       return this.assertions;
     },
   };

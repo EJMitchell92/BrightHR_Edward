@@ -19,7 +19,7 @@ type FormAction = "cancel" | "save";
 
 type SuccessModalAction = "close" | "addAnother" | "goToProfile" | "goToRotas";
 
-export class EmployeePage {
+export class EmployeeHubPage {
   constructor(private page: Page) {}
 
   private readonly employeeTabs: Record<EmployeeTab, string> = {
@@ -99,10 +99,34 @@ export class EmployeePage {
         `Expected ${expectedCount}, but found ${actualCount}`
       ).toBe(expectedCount);
 
-      // Added the abilityu to store in ENV for use in later validations
+      // Added the ability to store in ENV for use in later validations
       process.env.EMPLOYEE_COUNT = String(actualCount);
 
       return actualCount;
+    },
+
+    verifyEmployeeDetails: async (expectedHeading: string) => {
+      const mainContent = this.page.locator("#main-content");
+      await expect(mainContent).toBeVisible();
+      const heading = mainContent.getByRole("heading", {
+        level: 1,
+        name: new RegExp(expectedHeading, "i"),
+      });
+      await expect(heading).toBeVisible();
+
+      return this.actions;
+    },
+
+    clickEditButtonForEmployee: async (employeeName: string) => {
+      const employeeCard = this.page
+        .locator("div.flex.items-center.justify-between")
+        .filter({ has: this.page.locator("h1", { hasText: employeeName }) });
+
+      await expect(employeeCard).toHaveCount(1);
+      const editButton = employeeCard.getByTestId("EditButton");
+      await editButton.click();
+
+      return this.actions;
     },
   };
 
@@ -123,29 +147,31 @@ export class EmployeePage {
       return this.actions;
     },
 
-    pickDate: async (args: { year: number; month: string; day: number }) => {
-      const { year, month, day } = args;
-
+    openDatePicker: async () => {
       await this.page.getByTestId("input-selector").click();
-
       const panel = this.page.getByTestId("daypicker-panel");
       await expect(panel).toBeVisible();
 
-      await panel.getByRole("button", { name: /select year/i }).click();
-      await panel.getByRole("button", { name: String(year) }).click();
+      return this.actions;
+    },
 
-      await panel.getByRole("button", { name: /select month/i }).click();
-      await panel
-        .getByRole("button", { name: new RegExp(`^${month}$`, "i") })
-        .click();
+    pickDayByNumber: async (dayNumber: number) => {
+      const dayLocator = this.page.locator(
+        ".DayPicker-Day:not(.DayPicker-Day--outside) .DayPicker-Day-Number",
+        { hasText: String(dayNumber) }
+      );
 
-      const dayCell = panel
-        .getByRole("gridcell")
-        .filter({ hasText: new RegExp(`^\\s*${day}\\s*$`) })
-        .filter({ has: this.page.locator('[aria-disabled="false"]') });
+      const dayCount = await dayLocator.count();
+      if (dayCount === 0) {
+        throw new Error(
+          `Day ${dayNumber} is not available in the current month view`
+        );
+      }
 
-      await expect(dayCell, `Day ${day} should be clickable`).toBeVisible();
-      await dayCell.first().click();
+      await dayLocator.first().click();
+
+      const display = this.page.getByTestId("input-selector");
+      await expect(display).toContainText(String(dayNumber));
 
       return this.actions;
     },
@@ -166,11 +192,11 @@ export class EmployeePage {
     addModalVisible: async () => {
       const modal = this.page.getByRole("dialog");
 
-      await expect(modal, "Success modal should be visible").toBeVisible();
+      await expect(modal, "Add employee modal should be visible").toBeVisible();
 
       await expect(
-        modal.getByRole("heading", { name: /^success! new employee added$/i }),
-        "Success heading must be visible"
+        modal.getByRole("heading", { name: /^Add new employee$/i }),
+        "Add employee heading must be visible"
       ).toBeVisible();
     },
   };
@@ -219,10 +245,12 @@ export class EmployeePage {
 
   public readonly assertions = {
     isPageVisible: async () => {
-      await expect(this.page).toHaveURL(/\/employee-hub/i);
-      const currentURL = this.page.url();
-      if (!/\/employee-hub/i.test(currentURL)) {
-        throw new Error(`Test failed: Employee page did not load in time`);
+      try {
+        await this.page.waitForURL(/\/employee-hub/i, { timeout: 30_000 });
+      } catch {
+        throw new Error(
+          "Test failed: Employee page did not load within 30 seconds"
+        );
       }
       const sidebar = this.page.getByTestId("sideBar");
       await expect(
