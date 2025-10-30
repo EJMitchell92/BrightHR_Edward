@@ -14,6 +14,7 @@ export class LoginPage {
   public readonly actions = {
     visitURL: async () => {
       await this.page.goto("/login");
+      const currentURL = this.page.url();
       await this.assertions.isPageVisible();
       return this.actions;
     },
@@ -37,8 +38,10 @@ export class LoginPage {
 
   public readonly assertions = {
     isPageVisible: async () => {
-      await expect(this.page).toHaveURL(/\/login/i);
-
+      const currentURL = this.page.url();
+      if (!/\/login/i.test(currentURL)) {
+        throw new Error(`Test failed: Login page did not load in time`);
+      }
       const username = this.page.locator(this.loginSelectors.username);
       const password = this.page.locator(this.loginSelectors.password);
 

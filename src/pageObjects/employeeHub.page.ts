@@ -80,6 +80,30 @@ export class EmployeePage {
         .click();
       await this.addEmployeeEmployeeAssertions.addModalVisible();
     },
+
+    verifyEmployeeCount: async (expectedCount: number) => {
+      const heading = this.page.locator('h3:text("Employees")');
+      await expect(
+        heading,
+        "Employee count heading should be visible"
+      ).toBeVisible();
+
+      const text = await heading.textContent();
+      if (!text) throw new Error("Employee heading has no text content");
+
+      const match = text.match(/\((\d+)\)/);
+      const actualCount = match && match[1] ? parseInt(match[1], 10) : 0;
+
+      expect(
+        actualCount,
+        `Expected ${expectedCount}, but found ${actualCount}`
+      ).toBe(expectedCount);
+
+      // Added the abilityu to store in ENV for use in later validations
+      process.env.EMPLOYEE_COUNT = String(actualCount);
+
+      return actualCount;
+    },
   };
 
   public readonly addEmployeeActions = {
@@ -196,6 +220,10 @@ export class EmployeePage {
   public readonly assertions = {
     isPageVisible: async () => {
       await expect(this.page).toHaveURL(/\/employee-hub/i);
+      const currentURL = this.page.url();
+      if (!/\/employee-hub/i.test(currentURL)) {
+        throw new Error(`Test failed: Employee page did not load in time`);
+      }
       const sidebar = this.page.getByTestId("sideBar");
       await expect(
         sidebar,

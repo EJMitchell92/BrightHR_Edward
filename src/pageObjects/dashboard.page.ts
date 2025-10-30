@@ -13,7 +13,10 @@ export class DashboardPage {
 
   public readonly assertions = {
     isPageVisible: async () => {
-      await expect(this.page).toHaveURL(/\/dashboard/i);
+      const currentURL = this.page.url();
+      if (!/\/dashboard/i.test(currentURL)) {
+        throw new Error(`Test failed: Dashboard page did not load in time`);
+      }
       await expect(this.page.getByTestId("brightLogo")).toBeVisible();
       const sidebar = this.page.getByTestId("sideBar");
       await expect(

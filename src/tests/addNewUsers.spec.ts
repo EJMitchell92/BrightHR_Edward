@@ -27,6 +27,7 @@ test.describe("authenticated area", () => {
     const sidebar = new SidebarUtility(page);
 
     await sidebar.actions.clickMenuItem("employees");
+    await employee.actions.verifyEmployeeCount(1);
     await employee.actions.clickAddEmployeeButton();
     await employee.addEmployeeActions.enterEmployeeDetail(
       "firstName",
@@ -88,5 +89,6 @@ test.describe("authenticated area", () => {
     await employee.successEmployeeAssertions.successModalVisible();
     await employee.successEmployeeActions.clickSuccessModalAction("close");
     await sidebar.actions.clickMenuItem("employees");
+    await employee.actions.verifyEmployeeCount(3);
   });
 });
